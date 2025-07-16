@@ -32,8 +32,7 @@ export class ProductosController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
-    await this.productosService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.productosService.remove(id);
   }
 }

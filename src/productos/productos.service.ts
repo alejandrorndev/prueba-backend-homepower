@@ -84,7 +84,8 @@ export class ProductosService {
       throw new NotFoundException(`Producto con ID "${id}" no encontrado para eliminar.`);
     }
     
-    return { message: `Producto con ID "${id}" eliminado exitosamente.`, id: id };
-  }
+    return { message: `Producto con ID "${id}" eliminado exitosamente.`, id: id }; 
+}
+
 
 }
