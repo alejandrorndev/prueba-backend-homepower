@@ -1,10 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common'; // Importa ValidationPipe
-import { AllExceptionsFilter } from './common/filters/http-exception.filter'; // Importa tu filtro de excepciones
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const logger = new Logger('Main'); 
+
 
   // Habilita el ValidationPipe globalmente
   app.useGlobalPipes(
@@ -18,11 +22,19 @@ async function bootstrap() {
     }),
   );
 
-  // Registra tu filtro de excepciones global.
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Define el puerto donde escuchará tu aplicación.
-  await app.listen(process.env.PORT ?? 3000);
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+   
+  });
+
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  logger.log(`Aplicación corriendo en: ${await app.getUrl()}`)
 }
 
 bootstrap();
