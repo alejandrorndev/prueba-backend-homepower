@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: nest
+      POSTGRES_PASSWORD: nest
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Servicio NestJS usando la CLI dentro de un contenedor
+  nest-cli:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "npm install -g @nestjs/cli && nest new . --skip-git --package-manager npm"
+    # Esto solo se ejecuta la primera vez; después lo reemplazaremos con 'api'
+    depends_on:
+      - db
+
+  # Tu API NestJS compilada y lista para prod
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://nest:nest@db:5432/testdb
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
