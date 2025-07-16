@@ -1,0 +1,40 @@
+name: Pruebas Unitarias CI/CD
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  run-tests:
+    name: Ejecutar Pruebas Unitarias de NestJS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Código Fuente
+        uses: actions/checkout@v3
+
+      - name: Configurar Entorno Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Cachear Dependencias de Node.js
+        id: cache-npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm 
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+        
+      - name: Instalar Dependencias del Proyecto
+
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Ejecutar Todas las Pruebas Unitarias
+        run: npm test
