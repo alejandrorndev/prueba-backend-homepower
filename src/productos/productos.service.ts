@@ -1,7 +1,7 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  BadRequestException, 
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
   InternalServerErrorException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +16,7 @@ export class ProductosService {
   constructor(
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
-  ) {}
+  ) { }
 
   async create(createProductoDto: CreateProductoDto): Promise<Producto> {
     try {
@@ -77,15 +77,20 @@ export class ProductosService {
     }
   }
 
-  async remove(id: string): Promise<{ message: string; id: string }> { 
-    const result = await this.productoRepository.delete(id);
+  async remove(id: string): Promise<{ message: string; id: string }> {
+    const result = await this.productoRepository.softDelete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`Producto con ID "${id}" no encontrado para eliminar.`);
     }
-    
-    return { message: `Producto con ID "${id}" eliminado exitosamente.`, id: id }; 
-}
+
+    return { message: `Producto con ID "${id}" eliminado exitosamente.`, id: id };
+  }
+
+  async restore(id: string): Promise<Producto> {
+    await this.productoRepository.restore(id);
+    return this.findOne(id);
+  }
 
 
 }
